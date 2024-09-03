@@ -57,6 +57,19 @@
         svg {
             transform: rotate(0deg);
         }
+         /* 캡처 버튼 스타일 */
+         .capture-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 100;
+         }
     </style>
 </head>
 <body>
@@ -68,7 +81,7 @@
     <span id="input4">LLM</span>
     <span id="input5">프롬프트</span>
     <span id="input6">프롬프트 엔지니어링</span>
-    <span id="input7">할루시네이션(환각)</span>
+    <span id="input7">할루시네이션 (환각)</span>
     <span id="input8">파인튜닝</span>
     <span id="input9">멀티모달</span>
 </div>
@@ -85,50 +98,71 @@
         <div id="result">결과가 여기에 표시됩니다</div>
     </div>
 
+    <button class="capture-button" onclick="capture()">캡처</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         let isSpinning = false; // 스핀 중인지 확인하는 변수
 
         function updateWheel() {
-            const inputs = Array.from({ length: 10 }, (_, i) => document.getElementById(`input${i}`).textContent || `칸 ${i+1}`);
-            const wheelSegmentsGroup = document.getElementById('wheel-segments');
-            const wheelTextGroup = document.getElementById('wheel-text');
-            wheelSegmentsGroup.innerHTML = ''; // 기존 세그먼트 초기화
-            wheelTextGroup.innerHTML = ''; // 기존 텍스트 초기화
+    const inputs = Array.from({ length: 10 }, (_, i) => document.getElementById(`input${i}`).textContent || `칸 ${i+1}`);
+    const wheelSegmentsGroup = document.getElementById('wheel-segments');
+    const wheelTextGroup = document.getElementById('wheel-text');
+    wheelSegmentsGroup.innerHTML = ''; // 기존 세그먼트 초기화
+    wheelTextGroup.innerHTML = ''; // 기존 텍스트 초기화
 
-            const angle = 360 / inputs.length;
-            inputs.forEach((text, index) => {
-                const rotation = angle * index;
+    const angle = 360 / inputs.length;
+    inputs.forEach((text, index) => {
+        const rotation = angle * index;
 
-                // 각 칸을 그리는 path 요소 추가
-                const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                const startAngle = (rotation - 90) * Math.PI / 180;
-                const endAngle = (rotation + angle - 90) * Math.PI / 180;
-                const x1 = 150 + 150 * Math.cos(startAngle);
-                const y1 = 150 + 150 * Math.sin(startAngle);
-                const x2 = 150 + 150 * Math.cos(endAngle);
-                const y2 = 150 + 150 * Math.sin(endAngle);
-                const d = `M150,150 L${x1},${y1} A150,150 0 0,1 ${x2},${y2} Z`;
-                pathElement.setAttribute('d', d);
-                pathElement.setAttribute('fill', index % 2 === 0 ? '#e74c3c' : '#3498db'); // 칸 색상 번갈아가며 지정
+        // 각 칸을 그리는 path 요소 추가
+        const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const startAngle = (rotation - 90) * Math.PI / 180;
+        const endAngle = (rotation + angle - 90) * Math.PI / 180;
+        const x1 = 150 + 150 * Math.cos(startAngle);
+        const y1 = 150 + 150 * Math.sin(startAngle);
+        const x2 = 150 + 150 * Math.cos(endAngle);
+        const y2 = 150 + 150 * Math.sin(endAngle);
+        const d = `M150,150 L${x1},${y1} A150,150 0 0,1 ${x2},${y2} Z`;
+        pathElement.setAttribute('d', d);
+        pathElement.setAttribute('fill', index % 2 === 0 ? '#e74c3c' : '#3498db'); // 칸 색상 번갈아가며 지정
 
-                wheelSegmentsGroup.appendChild(pathElement);
+        wheelSegmentsGroup.appendChild(pathElement);
 
-                // 텍스트 요소 추가
-                const xText = 150 + 100 * Math.cos((rotation + angle / 2 - 90) * Math.PI / 180);
-                const yText = 150 + 100 * Math.sin((rotation + angle / 2 - 90) * Math.PI / 180);
-                const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                textElement.setAttribute('x', xText);
-                textElement.setAttribute('y', yText);
-                textElement.setAttribute('text-anchor', 'middle');
-                textElement.setAttribute('dominant-baseline', 'middle');
-                textElement.setAttribute('transform', `rotate(${rotation + angle / 2}, ${xText}, ${yText})`);
-                textElement.setAttribute('font-size', '6'); // 텍스트 크기 조정 (기존 12에서 절반으로 줄임)
-                textElement.setAttribute('fill', '#fff'); // 텍스트 색상 설정
-                textElement.textContent = text;
+        // 텍스트를 줄바꿈하여 두 줄로 나누기
+        const lines = text.split(" "); // 단순히 공백으로 나누는 예시, 필요시 다른 기준으로 수정
+        const xText = 150 + 100 * Math.cos((rotation + angle / 2 - 90) * Math.PI / 180);
+        const yText = 150 + 100 * Math.sin((rotation + angle / 2 - 90) * Math.PI / 180);
 
-                wheelTextGroup.appendChild(textElement);
-            });
-        }
+        // 텍스트 요소 추가
+        const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        textElement.setAttribute('x', xText);
+        textElement.setAttribute('y', yText);
+        textElement.setAttribute('text-anchor', 'middle');
+        textElement.setAttribute('dominant-baseline', 'middle');
+        textElement.setAttribute('transform', `rotate(${rotation + angle / 2}, ${xText}, ${yText})`);
+        textElement.setAttribute('font-size', '9'); // 폰트 사이즈를 절반으로 줄임
+        textElement.setAttribute('fill', '#fff'); // 텍스트 색상 설정
+
+        // 첫 번째 줄
+        const tspan1 = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        tspan1.setAttribute('x', xText);
+        tspan1.setAttribute('dy', '-0.5em'); // 첫 번째 줄은 기본 위치보다 약간 위로
+        tspan1.textContent = lines[0]; // 첫 번째 줄 텍스트
+
+        // 두 번째 줄
+        const tspan2 = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        tspan2.setAttribute('x', xText);
+        tspan2.setAttribute('dy', '1em'); // 두 번째 줄은 첫 번째 줄 아래로
+        tspan2.textContent = lines[1] || ""; // 두 번째 줄 텍스트, 없으면 빈 문자열
+
+        // 텍스트 요소에 tspan 추가
+        textElement.appendChild(tspan1);
+        textElement.appendChild(tspan2);
+
+        wheelTextGroup.appendChild(textElement);
+    });
+}
+
 
         function spin() {
             if (isSpinning) return; // 스핀 중이면 동작하지 않음
@@ -158,9 +192,18 @@
                 isSpinning = false; // 스핀 상태 초기화
             }, 4000);
         }
+        
+        // 캡처 기능 구현
+    function capture() {
+        html2canvas(document.querySelector('.roulette-container')).then(canvas => {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'roulette_capture.png';
+            link.click();
+        });
+    }
 
-        updateWheel(); // 페이지 로드 시 초기 텍스트와 세그먼트 업데이트
-
+    window.onload = updateWheel;
     </script>
 </body>
 </html>
