@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>룰렛 게임</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .roulette-container {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .wheel {
+            width: 450px; /* 기존 300px에서 1.5배로 확대 */
+            height: 450px; /* 기존 300px에서 1.5배로 확대 */
+            border: 15px solid #333; /* 두께도 1.5배로 조정 */
+            border-radius: 50%;
+            transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+            overflow: hidden;
+        }
+        .pointer {
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent; /* 화살표 크기 1.5배 */
+            border-right: 30px solid transparent; /* 화살표 크기 1.5배 */
+            border-top: 30px solid #f00; /* 화살표 크기 1.5배 */
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        .spin-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #result {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+        .input-container {
+            display: none; /* 입력 텍스트를 숨김 처리 */
+        }
+        svg {
+            transform: rotate(0deg);
+        }
+    </style>
+</head>
+<body>
+<div class="input-container">
+    <span id="input0">인공지능(AI)</span>
+    <span id="input1">머신러닝</span>
+    <span id="input2">딥러닝</span>
+    <span id="input3">자연어 처리(NLP)</span>
+    <span id="input4">LLM</span>
+    <span id="input5">프롬프트</span>
+    <span id="input6">프롬프트 엔지니어링</span>
+    <span id="input7">할루시네이션(환각)</span>
+    <span id="input8">파인튜닝</span>
+    <span id="input9">멀티모달</span>
+</div>
+
+    <div class="roulette-container">
+        <div class="pointer"></div>
+        <div id="wheel" class="wheel">
+            <svg width="450" height="450" viewBox="0 0 300 300"> <!-- 뷰포트는 원래대로 유지 -->
+                <g id="wheel-segments"></g>
+                <g id="wheel-text"></g>
+            </svg>
+        </div>
+        <button class="spin-button" onclick="spin()">스핀!</button>
+        <div id="result">결과가 여기에 표시됩니다</div>
+    </div>
+
+    <script>
+        let isSpinning = false; // 스핀 중인지 확인하는 변수
+
+        function updateWheel() {
+            const inputs = Array.from({ length: 10 }, (_, i) => document.getElementById(`input${i}`).textContent || `칸 ${i+1}`);
+            const wheelSegmentsGroup = document.getElementById('wheel-segments');
+            const wheelTextGroup = document.getElementById('wheel-text');
+            wheelSegmentsGroup.innerHTML = ''; // 기존 세그먼트 초기화
+            wheelTextGroup.innerHTML = ''; // 기존 텍스트 초기화
+
+            const angle = 360 / inputs.length;
+            inputs.forEach((text, index) => {
+                const rotation = angle * index;
+
+                // 각 칸을 그리는 path 요소 추가
+                const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const startAngle = (rotation - 90) * Math.PI / 180;
+                const endAngle = (rotation + angle - 90) * Math.PI / 180;
+                const x1 = 150 + 150 * Math.cos(startAngle);
+                const y1 = 150 + 150 * Math.sin(startAngle);
+                const x2 = 150 + 150 * Math.cos(endAngle);
+                const y2 = 150 + 150 * Math.sin(endAngle);
+                const d = `M150,150 L${x1},${y1} A150,150 0 0,1 ${x2},${y2} Z`;
+                pathElement.setAttribute('d', d);
+                pathElement.setAttribute('fill', index % 2 === 0 ? '#e74c3c' : '#3498db'); // 칸 색상 번갈아가며 지정
+
+                wheelSegmentsGroup.appendChild(pathElement);
+
+                // 텍스트 요소 추가
+                const xText = 150 + 100 * Math.cos((rotation + angle / 2 - 90) * Math.PI / 180);
+                const yText = 150 + 100 * Math.sin((rotation + angle / 2 - 90) * Math.PI / 180);
+                const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                textElement.setAttribute('x', xText);
+                textElement.setAttribute('y', yText);
+                textElement.setAttribute('text-anchor', 'middle');
+                textElement.setAttribute('dominant-baseline', 'middle');
+                textElement.setAttribute('transform', `rotate(${rotation + angle / 2}, ${xText}, ${yText})`);
+                textElement.setAttribute('font-size', '6'); // 텍스트 크기 조정 (기존 12에서 절반으로 줄임)
+                textElement.setAttribute('fill', '#fff'); // 텍스트 색상 설정
+                textElement.textContent = text;
+
+                wheelTextGroup.appendChild(textElement);
+            });
+        }
+
+        function spin() {
+            if (isSpinning) return; // 스핀 중이면 동작하지 않음
+            isSpinning = true; // 스핀 상태로 설정
+
+            updateWheel(); // 룰렛 돌리기 전에 텍스트와 세그먼트 업데이트
+            const inputs = Array.from({ length: 10 }, (_, i) => document.getElementById(`input${i}`).textContent || `칸 ${i+1}`);
+            const wheel = document.getElementById('wheel');
+            const spinDegrees = Math.floor(Math.random() * 360) + 3600; // 최소 10바퀴 이상 회전
+
+            // 매번 동일한 속도로 회전하도록 transition 초기화
+            wheel.style.transition = 'none';
+            wheel.style.transform = `rotate(0deg)`; // 초기화
+            setTimeout(() => {
+                wheel.style.transition = 'transform 4s cubic-bezier(0.33, 1, 0.68, 1)'; // 애니메이션 설정
+                wheel.style.transform = `rotate(${spinDegrees}deg)`; // 회전 시작
+            }, 20); // transition 설정 후 살짝의 딜레이
+
+            // 당첨된 칸 계산
+            const segmentAngle = 360 / inputs.length;
+            const winningSegment = Math.floor((spinDegrees % 360) / segmentAngle);
+            const resultText = inputs[inputs.length - 1 - winningSegment]; // 시계 반대 방향으로 계산
+
+            // 스핀 후 4초 뒤 결과 표시 및 스핀 상태 초기화
+            setTimeout(() => {
+                document.getElementById('result').innerText = `결과: ${resultText}`;
+                isSpinning = false; // 스핀 상태 초기화
+            }, 4000);
+        }
+
+        updateWheel(); // 페이지 로드 시 초기 텍스트와 세그먼트 업데이트
+
+    </script>
+</body>
+</html>
