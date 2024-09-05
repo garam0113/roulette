@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>룰렛 게임</title>
+    
     <style>
         body {
             display: flex;
@@ -59,8 +60,8 @@
         }
          /* 캡처 버튼 스타일 */
          .capture-button {
-            position: absolute;
-            top: 20px;
+            position: relative;
+            top: -20px;
             padding: 10px 15px;
             background-color: #4CAF50;
             color: white;
@@ -68,10 +69,12 @@
             border-radius: 5px;
             cursor: pointer;
             z-index: 100;
+            font-size : 16px;
          }
     </style>
 </head>
 <body>
+<button class="capture-button" onclick="capture()">캡처</button>
 <div class="input-container">
     <span id="input0">인공지능 (AI)</span>
     <span id="input1">머신러닝</span>
@@ -86,6 +89,7 @@
 </div>
 
     <div class="roulette-container">
+        
         <div class="pointer"></div>
         <div id="wheel" class="wheel">
             <svg width="450" height="450" viewBox="0 0 300 300"> <!-- 뷰포트는 원래대로 유지 -->
@@ -97,7 +101,7 @@
         <div id="result">결과가 여기에 표시됩니다</div>
     </div>
 
-    <button class="capture-button" onclick="capture()">캡처</button>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         let isSpinning = false; // 스핀 중인지 확인하는 변수
